@@ -9,6 +9,9 @@ import Blog from './component/Blog/Blog'; // Di chuyển import Index lên trên
 import BlogDetail from './component/Blog/Blogdetail';
 import Register from './component/member/Register';
 import Login from './component/member/Login';
+import Account from './component/member/Account';
+import ListProduct from './component/product/ListProduct';
+import AddProduct from './component/product/AddProduct';
 
 // import Register from './component/member/Register';
 // import Login from './component/member/Login';
@@ -26,6 +29,10 @@ root.render(
           
           <Route path='/register' element={<Register/>}/>
           <Route path='/login' element={<Login/>}/>
+          <Route path='/account' element={<Account/>}/>
+          <Route path='/product' element={<ListProduct/>}/>
+          <Route path='/product/add' element={<AddProduct/>}/>
+
 
           
           {/* <Route path='/register' element={<Register/>}/>

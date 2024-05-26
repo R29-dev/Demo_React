@@ -7,6 +7,8 @@ function Comment({ idBlog }) {
     const [message, setMessage] = useState("");
     const [comments, setComments] = useState([]);
     const [error, setError] = useState("");
+    const [level, setLevel] = useState(0);
+    const [isReplying, setIsReplying] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -25,6 +27,14 @@ function Comment({ idBlog }) {
     useEffect(() => {
         console.log(comments); // Đưa log ra đây để kiểm tra giá trị mới của comments
     }, [comments]);
+
+    useEffect(() => {
+        if (isReplying) {
+            handleCommentSubmit();
+            setIsReplying(false); // Reset lại isReplying sau khi gửi bình luận
+        }
+    }, [isReplying]);
+
     const handleCommentSubmit = async () => {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -52,7 +62,7 @@ function Comment({ idBlog }) {
         form.append('id_user', userData.Auth.id); // Change userData.Auth.id to userData.id
         form.append('cmt', message); // Include the comment message
         form.append('name', userData.Auth.name); // Change userData.Auth.name to userData.name
-
+        form.append('level',level);
 
         try {
             const response = await axios.post(`http://localhost/du-an-web/public/api/blog/comment/${idBlog}`, form, config);
@@ -71,9 +81,14 @@ function Comment({ idBlog }) {
         setMessage(e.target.value);
     };
 
+    const handleReply = (commentId) => {
+        setLevel(commentId);
+        setIsReplying(true);
+    };
+
     return (
         <div>
-            <ListComment comments={comments} />
+            <ListComment comments={comments} onReply={handleReply} />
             <div className="text-area">
                 <div className="blank-arrow">
                 </div>

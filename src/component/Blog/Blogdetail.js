@@ -32,10 +32,11 @@ function BlogDetail() {
                                 <li><i class="fa fa-clock-o"></i> 1:33 pm</li>
                                 <li><i class="fa fa-calendar"></i> DEC 5, 2013</li>
                             </ul>
+							<Rate/>
+
 					<img src={`http://localhost/du-an-web/public/upload/blog/image/${postData.Image}`}style={{ width: '100%' }}  alt={postData.Title} />
 					<p>{postData.Description}</p>
 					<div dangerouslySetInnerHTML={{ __html: postData.Content }} />
-					<Rate/>
 					<ListComment />
 					<Comment idBlog={id} />
 

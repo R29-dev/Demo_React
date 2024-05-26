@@ -3,34 +3,30 @@ import './App.css';
 import Header from './component/Layouts/Header';
 import Footer from './component/Layouts/Footer';
 import MenuLeft from './component/Layouts/MenuLeft';
+import { useLocation } from 'react-router-dom';
+import LeftAccount from './component/Layouts/LeftAccount';
+
 function App(props) {
-return (
-  <div className="App">
+  let params1 = useLocation();
 
-      
-   
-    <Header />
-    <section>
-		<div class="container">
-			<div class="row">
-      <div class="col-sm-3">
-         <MenuLeft/>
-      </div>
-      <div class="col-sm-9">
-        {props.children}
+  return (
+    <div className="App">
+      <Header />
+      <section>
+        <div className="container">
+          <div className="row">
+            <div className="col-sm-3">
+              {(params1.pathname.includes("/account") || params1.pathname.includes("/product")) ? <LeftAccount /> : <MenuLeft />}
+            </div>
+            <div className="col-sm-9">
+              {props.children}
+            </div>
+          </div>
         </div>
-        
-      
-  
-
-      </div>
-      </div>
       </section>
-       
-    <Footer />
-   
-  </div>
-);
-
+      <Footer />
+    </div>
+  );
 }
+
 export default App;
