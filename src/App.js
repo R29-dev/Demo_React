@@ -5,11 +5,12 @@ import Footer from './component/Layouts/Footer';
 import MenuLeft from './component/Layouts/MenuLeft';
 import { useLocation } from 'react-router-dom';
 import LeftAccount from './component/Layouts/LeftAccount';
-
+import { CartProvider } from './component/Context/CartContext'
 function App(props) {
   let params1 = useLocation();
 
   return (
+    <CartProvider> 
     <div className="App">
       <Header />
       <section>
@@ -26,6 +27,7 @@ function App(props) {
       </section>
       <Footer />
     </div>
+    </CartProvider> 
   );
 }
 

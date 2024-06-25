@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import axios from 'axios';
 import ListComment from './ListComment';
 import Comment from './Comment';
 import Rate from './Rate';
@@ -10,42 +11,42 @@ function BlogDetail() {
     const { id } = useParams();
 
     useEffect(() => {
-        fetch(`http://localhost/du-an-web/public/api/blog/detail/${id}`)
-            .then(response => response.json())
-            .then(data => {
-				console.log(data)
-                setPostData(data.data.blog);
-                setCommentData(data.data.comments);
+        axios.get(`http://localhost/laravel8/public/api/blog/detail/${id}`)
+            .then(response => {
+                const data = response.data.data;
+                setPostData(data);
+                setCommentData(data.comment);
             })
-            .catch(error => console.error('Error fetching data:', error));
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
     }, [id]);
 
-	return (
-		<div>
-			<div className="blog-post-area mx-4">
-				<h2 className="title text-center">Latest From our Blog</h2>
-				
-				<div className="single-blog-post">
-					<h3>{postData.Title}</h3>
-					<ul class="sinlge-post-meta">
-                                <li><i class="fa fa-user"></i>Đoàn Văn Công</li>
-                                <li><i class="fa fa-clock-o"></i> 1:33 pm</li>
-                                <li><i class="fa fa-calendar"></i> DEC 5, 2013</li>
-                            </ul>
-							<Rate/>
+    return (
+        <div>
+            <div className="blog-post-area mx-4">
+                <h2 className="title text-center">Latest From our Blog</h2>
+                
+                <div className="single-blog-post">
+                    <h3>{postData.title}</h3>
+                 
+                    <Rate />
 
-					<img src={`http://localhost/du-an-web/public/upload/blog/image/${postData.Image}`}style={{ width: '100%' }}  alt={postData.Title} />
-					<p>{postData.Description}</p>
-					<div dangerouslySetInnerHTML={{ __html: postData.Content }} />
-					<ListComment />
-					<Comment idBlog={id} />
-
-
-					
-				</div>
-			</div>
-		</div>
-	);
+                    {postData.image && (
+                        <img 
+                            src={`http://localhost/laravel8/public/upload/Blog/image/${postData.image}`} 
+                            style={{ width: '100%' }} 
+                            alt={postData.title} 
+                        />
+                    )}
+                    <p>{postData.description}</p>
+                    <div dangerouslySetInnerHTML={{ __html: postData.content }} />
+                    <ListComment comments={commentData} />
+                    <Comment idBlog={id} />
+                </div>
+            </div>
+        </div>
+    );
 }
 
 export default BlogDetail;

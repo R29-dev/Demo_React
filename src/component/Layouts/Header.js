@@ -1,18 +1,21 @@
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { useCart } from '../Context/CartContext';
+
 function Header() {
 	const navigate = useNavigate();
-	
+	const { getCartItemCount } = useCart();
 
-		useEffect(() => {
-			const token = localStorage.getItem("token");
-			if (!token) { 
-				if (window.location.pathname == "/account") {
-					navigate("/login");
-				}
+
+	useEffect(() => {
+		const token = localStorage.getItem("token");
+		if (!token) {
+			if (window.location.pathname == "/account") {
+				navigate("/login");
 			}
-		}, [navigate]); // useEffect sẽ chạy lại khi navigate thay đổi
+		}
+	}, [navigate]); // useEffect sẽ chạy lại khi navigate thay đổi
 
 	const handleCheck = () => {
 		// Lấy token từ localStorage
@@ -29,7 +32,7 @@ function Header() {
 	return (
 		<div>
 			<header>
-				
+
 				<div class="header_top">
 					<div class="container">
 						<div class="row">
@@ -96,7 +99,13 @@ function Header() {
 									<ul class="nav navbar-nav">
 										{handleCheck() ? (
 											<>
-												<li><a href="cart.html"><i class="fa fa-shopping-cart"></i> Cart</a></li>
+												<li>
+													<Link to="/product/cart">
+														<i className="fa fa-shopping-cart"></i> Cart ({getCartItemCount()})
+													</Link>
+												</li>
+
+
 												<li><Link to="/account"><i className="fa fa-user"></i> Account</Link></li>
 												<li><a href="#" onClick={handleLogout}><i className="fa fa-lock"></i> Logout</a></li>
 											</>

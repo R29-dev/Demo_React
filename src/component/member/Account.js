@@ -2,112 +2,190 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 function Account() {
-    const [user, setUser] = useState({
-        name: '',
-        email: '',
-        address: '',
-        phone: '',
-        password: '',
+    const token = localStorage.getItem("token");
+    const [formErrors, setFormErrors] = useState({});
+    const [formData, setFormData] = useState({
+       
+        name: "",
+        email: "",
+        password: "",
+        phone: "",
+        address: "",
+        avatar: null,
+      
     });
-    const [errors, setErrors] = useState({});
-
-    // Lấy dữ liệu người dùng từ localStorage khi component được mount
     useEffect(() => {
         let userData = localStorage.getItem("userData");
         if (userData) {
             userData = JSON.parse(userData);
             const { Auth } = userData;
             if (Auth) {
-                setUser({
+                setFormData({
                     name: Auth.name,
                     email: Auth.email,
                     address: Auth.address || '',
                     phone: Auth.phone || '',
+                    id: Auth.id,
+                    avatar: Auth.avatar
                 });
             }
         }
     }, []);
 
-    // Xử lý khi người dùng nhập dữ liệu vào các input
+  
+
+
+    const userDataToSend = { ...formData };
+   
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-        setUser({ ...user, [name]: value });
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
     };
 
-    // Hàm kiểm tra tính hợp lệ của dữ liệu người dùng nhập vào
-    const validate = () => {
-        let tempErrors = {};
-        if (!user.name) tempErrors.name = "Tên không được để trống.";
-        if (!user.phone) tempErrors.phone = "Số điện thoại không được để trống.";
-        if (!user.address) tempErrors.address = "Địa chỉ không được để trống.";
-        setErrors(tempErrors);
-        return Object.keys(tempErrors).length === 0;
-    };
-
-    // Hàm xử lý khi người dùng submit form
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!validate()) return; // Nếu kiểm tra tính hợp lệ thất bại, không thực hiện tiếp
-
-        try {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                alert("Vui lòng đăng nhập để có thể cập nhật thông tin người dùng.");
+  
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            if (!validateAvatar(file)) {
+                alert("Vui lòng chọn file hình ảnh có định dạng JPEG, PNG hoặc GIF và kích thước dưới 1MB.");
                 return;
             }
-    
-            const userDataToSend = { ...user };
-            if (!userDataToSend.password) {
-                delete userDataToSend.password; // Xóa trường password nếu nó trống
-            }
-    
-            const config = {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFormData(prev => ({
+                    ...prev,
+                    avatar: reader.result // Lưu base64 string của hình ảnh vào formData
+                }));
             };
-    
-            const response = await axios.post('http://localhost/du-an-web/public/api/user/update', userDataToSend, config);
-            console.log(response.data); // Log phản hồi từ server
-
-            // Xử lý thông báo thành công
-            alert('Cập nhật thông tin người dùng thành công.');
-
-            console.log("Dữ liệu người dùng sau khi cập nhật:", userDataToSend);
-
-            localStorage.setItem("userData", JSON.stringify({ Auth: userDataToSend }));
-
-           
-        } catch (error) {
-            console.error('Lỗi:', error);
-            // Xử lý thông báo lỗi
-            alert('Đã xảy ra lỗi khi cập nhật thông tin người dùng. Vui lòng thử lại.');
+            reader.readAsDataURL(file);
         }
     };
 
+    const validateEmail = (email) => {
+        const re = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
+        return re.test(String(email).toLowerCase());
+    };
+
+    const validateForm = () => {
+        const errors = {};
+        if (!formData.email || !validateEmail(formData.email)) {
+            errors.email = "Email không hợp lệ";
+        }
+       
+        if (!formData.name) {
+            errors.name = "Vui lòng nhập tên của bạn";
+        }
+        if (!formData.phone) {
+            errors.phone = "Vui lòng nhập số điện thoại của bạn";
+        }
+        if (!formData.address) {
+            errors.address = "Vui lòng nhập địa chỉ của bạn";
+        }
+        // if (!formData.avatar) {
+        //     errors.avatar = "Vui lòng chọn ảnh đại diện";
+        // }
+        return errors;
+    };
+
+    const validateAvatar = (file) => {
+        // Các loại định dạng hình ảnh hợp lệ
+        const validImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    
+        // Kiểm tra xem định dạng của tệp có nằm trong danh sách các định dạng hợp lệ không
+        if (!validImageTypes.includes(file.type)) {
+            return false; // Nếu không, trả về false vì tệp không phải là hình ảnh hợp lệ
+        }
+    
+        // Kích thước tối đa của tệp được cho phép (1MB)
+        const maxSize = 1024 * 1024; // 1MB
+    
+        // Kiểm tra xem kích thước của tệp có vượt quá kích thước tối đa không
+        if (file.size > maxSize) {
+            return false; // Nếu có, trả về false vì tệp quá lớn
+        }
+    
+        // Nếu tệp hợp lệ cả về định dạng và kích thước, trả về true
+        return true;
+    };
+    
+    const config = {
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'enctype="multipart/form-data'
+        }
+    };
+
+  
+
+    const postData = async () => {
+        try {
+           
+            if (!token) {
+            alert("Vui lòng đăng nhập để có thể cập nhật thông tin người dùng.");
+            return;
+            }
+            
+            const response = await axios.post(`http://localhost/laravel8/public/api/user/update/${formData.id}`, userDataToSend, config);
+            // Kiểm tra xem yêu cầu đã thành công hay không
+            if (response.status === 200) {
+                
+                alert("Cập nhật người dùng thành công");
+    
+            //     localStorage.setItem("userData", JSON.stringify({formData }));
+
+                          console.log(userDataToSend);
+
+            }
+    
+            // Trả về dữ liệu phản hồi từ yêu cầu đăng ký
+            return response.data;
+        } catch (error) {
+            // Xử lý lỗi nếu có
+            console.error('Error while registering:', error);
+            throw error; // Ném lỗi để xử lý ở phần gọi hàm
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        const errors = validateForm();
+        if (Object.keys(errors).length === 0) {
+            try {
+                // Nếu không có lỗi, gửi dữ liệu đăng ký
+                await postData();
+            } catch (error) {
+                // Nếu có lỗi, hiển thị thông báo lỗi
+                setFormErrors({ server: 'Đã xảy ra lỗi khi đăng ký. Vui lòng thử lại sau.' });
+            }
+        } else {
+            // Nếu có lỗi, hiển thị thông báo lỗi
+            setFormErrors(errors);
+        }
+    };
+
+    const renderErrors = () => {
+        return Object.keys(formErrors).map((key, index) => (
+            <div key={index} className="error-message">{formErrors[key]}</div>
+        ));
+    };
+
     return (
-        <div className="blog-post-area">
-            <h2 className="title text-center">Update user</h2>
-            <div className="signup-form">
-                <h2>Update User</h2>
-                <form onSubmit={handleSubmit}>
-                    <input type="text" name="name" value={user.name}  placeholder="Name" onChange={handleInputChange} />
-                    {errors.name && <div className="error">{errors.name}</div>}
-                    
-                    <input type="email" name="email"  value={user.email} placeholder="Email Address" readOnly />
-                    
-                    <input type="password" name="password"  value={user.password} placeholder="Password"  onChange={handleInputChange} />
+        <div className="login">
+            <form onSubmit={handleSubmit} className="login-form">
+                <input type="text" placeholder="Name" name="name" value={formData.name} onChange={handleInputChange} />
+                <input type="email" placeholder="Email" name="email" value={formData.email} onChange={handleInputChange} readOnly />
+                <input type="password" placeholder="Password" name="password" value={formData.password} onChange={handleInputChange} />
+                <input type="number" placeholder="Phone" name="phone" value={formData.phone} onChange={handleInputChange} />
+                <input type="text" placeholder="Address" name="address" value={formData.address} onChange={handleInputChange} />
+                <input type="file" name="avatar" onChange={handleFileChange} />
+                <img src={`http://localhost/laravel8/public/upload/user/avatar/${formData.avatar}`} width="150px" alt="Avatar" />
 
-                    <input type="text" name="phone" value={user.phone}  placeholder="Phone" onChange={handleInputChange} />
-                    {errors.phone && <div className="error">{errors.phone}</div>}
-
-                    <input type="text" name="address"  value={user.address} placeholder=" Address" onChange={handleInputChange} />
-                    {errors.address && <div className="error">{errors.address}</div>}
-                    
-                    <button type="submit" className="btn btn-default">Update</button>
-                </form>
-            </div>
+                <button type="submit">Cập Nhật</button>
+            </form>
+            {renderErrors()}
         </div>
     );
 }
