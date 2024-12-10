@@ -1,0 +1,17 @@
+/* styles.css */
+.card-img-container {
+    width: 100%; /* Kích thước phù hợp với thẻ card */
+    /* height: 200px;  */
+    /* Chiều cao của hình ảnh */
+    overflow: hidden; /* Ẩn bất kỳ phần nào của hình ảnh vượt ra khỏi container */
+    margin: 10px;
+}
+
+.card-img {
+    width: 100%; /* Kích thước hình ảnh là 100% của container */
+    height: auto; /* Chiều cao tự động dựa trên tỷ lệ hình ảnh */
+    object-fit: cover; /* Đảm bảo hình ảnh hiển thị đúng tỷ lệ không bị méo */
+}
+.App{
+    margin: 5px;
+}
